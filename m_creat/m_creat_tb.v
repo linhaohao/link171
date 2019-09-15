@@ -8,16 +8,16 @@ initial
 begin
 sys_clk = 1'b0;
 sys_rst_n = 1'b0;
-#100;
+#100
 sys_rst_n = 1'b1;
+#100;
+sys_rst_n = 1'b0;
 forever #20 sys_clk = ~sys_clk;
 end
 
-m_creat I1
-(
-.sys_clk( sys_clk ),
-.sys_rst_n( sys_rst_n ),
-.out( out ),
-.shift( shift )
+m_sequence m_sequence(
+.sclk(sys_clk),
+.rst_n(sys_rst_n),
+.m_seq(out)
 );
 endmodule
