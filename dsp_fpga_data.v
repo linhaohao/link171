@@ -517,17 +517,17 @@ mcbsp_rx_data rx_data_inst (
 //);
 ////////////////////////////////
 reg [31:0] send_data_reg;
-//assign send_data[31:0] = send_data_reg[31:0];
+// assign send_data[31:0] = send_data_reg[31:0];
 always@(posedge clk_25kHz or posedge cfg_rst)
 begin
 	if(cfg_rst) begin
 		send_data_reg[31:0] <= 32'd0;
 	end
 	else if(read_addr[13:0]<14'd6000)begin
-		send_data_reg[31:0] <= 32'hf0f0f0f0; 
+		send_data_reg[31:0] <= 32'haaaaaaaa; 
 	end
 	else begin
-		send_data_reg[31:0] <= 32'hff00ff00;
+		send_data_reg[31:0] <= 32'haaaaaaaa;
 	end
 end
 ////////////////////////////////////////////////////////////////////////////////////////////////

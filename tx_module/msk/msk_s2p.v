@@ -60,7 +60,7 @@ begin
 	  dif_msk_data                <= 1'b1; //keep b0=a0
 	end
 	else if(msk_data_in_vaild)  begin
-	  dif_msk_data                <= msk_data_in ^~ dif_msk_data;	
+	  dif_msk_data                <= msk_data_in ^~ dif_msk_data;
 	end
 end
 
