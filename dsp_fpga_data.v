@@ -473,7 +473,7 @@ always@(posedge mcbsp0_slaver_clkx or posedge cfg_rst) begin
 end
 
 
-parameter ram_addr_length =14'd19;//20个32bit储存空间可以放640bit
+parameter ram_addr_length =14'd39;//40个32bit储存空间可以放1280bit
 always@(posedge mcbsp0_slaver_clkx or posedge cfg_rst)
 begin
 	if (cfg_rst)  begin //make sure power reset 
@@ -516,18 +516,20 @@ mcbsp_rx_data rx_data_inst (
 //.shift( send_data[31:0] )
 //);
 ////////////////////////////////
-/* always@(posedge clk_25kHz or posedge cfg_rst)
+reg [31:0] send_data_reg;
+//assign send_data[31:0] = send_data_reg[31:0];
+always@(posedge clk_25kHz or posedge cfg_rst)
 begin
 	if(cfg_rst) begin
-		send_data[31:0] <= 32'd0;
+		send_data_reg[31:0] <= 32'd0;
 	end
 	else if(read_addr[13:0]<14'd6000)begin
-		send_data[31:0] <= 32'haaaaaaaa; 
+		send_data_reg[31:0] <= 32'hf0f0f0f0; 
 	end
 	else begin
-		send_data[31:0] <= 32'haaaaaaaa;
+		send_data_reg[31:0] <= 32'hff00ff00;
 	end
-end */
+end
 ////////////////////////////////////////////////////////////////////////////////////////////////
 always@(posedge clk_20m or posedge cfg_rst)
 begin

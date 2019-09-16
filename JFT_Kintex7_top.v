@@ -243,6 +243,8 @@ wire [31:0]         dsp_rd_data;
 wire [31:0]         mif_data_in;
 wire                mif_en_in;
 
+wire [63:0]			mif_data_out;
+wire				mif_data_vaild;
 wire [63:0]         uart_demsk_data;
 wire                uart_demsk_data_valid;
 
@@ -428,13 +430,13 @@ port_cfg_top   U2_port_cfg_top
      //--UART
      .usb2fpga_uart_rxd            (usb2fpga_uart_rxd),
      .fpga2usb_uart_txd            (fpga2usb_uart_txd),
-     //--MIF
+     //--MIF,uart_top的时钟为20mhz
      .mif_data_in                  (mif_data_in        ),   
      .mif_en_in                    (mif_en_in          ),     
      .mif_addr_out                 (mif_addr_out       ),  
      .mif_rd_stat                  (mif_rd_stat        ),  
-     .mif_data_out                 (uart_demsk_data[63:0]),	//mif_data_out
-     .mif_data_vaild               (uart_demsk_data_valid),	//mif_data_vaild
+     .mif_data_out                 (mif_data_out[63:0]),	//mif_data_out
+     .mif_data_vaild               (mif_data_vaild),	//mif_data_vaild
      .mif_rd_valid                 (device_rd_vaild    ),
      .mif_rd_data                  (device_rd_data     ),
      
@@ -486,7 +488,7 @@ port_cfg_top   U2_port_cfg_top
      .adc1_spi_sdi                 (adc1_spi_sdi     ),	 
 //------------UART CTR--------------------------------------------
      .rs_rx_data                   (rv_uart_data      ),
-     .rs_rx_data_vlde              (rv_uart_vld       ),
+     .rs_rx_data_vlde              (rv_uart_vld       ),//20mhz脉宽的脉冲
 //-------------DEBUG-------------------------------------------
      .lmk_debug                    (lmk_debug      ),          
      .device_rd_debug              (device_rd_debug),  
@@ -494,7 +496,7 @@ port_cfg_top   U2_port_cfg_top
      .adc_debug                    (adc_debug      ),              
      .initial_debug                (initial_debug  ),    
      .dac_cfg_debug                (dac_cfg_debug),
-	  .uart_debug						  (uart_debug)
+	 .uart_debug				   (uart_debug)
 	 
     );	 
 
@@ -534,6 +536,7 @@ dsp_fpga_data(
 		.mcbsp0_master_clkr(dsp_mcbsp0_rxclk),	 
 		.mcbsp0_master_fsr(dsp_mcbsp0_fsr),	 
 		.mcbsp0_master_miso(dsp_mcbsp0_rx),
+		
 		.tx_send_start(tx_send_start),//目前接收完数据就发送，以后添加了时隙概念后可以用时隙起始值控制发送使能 
 		.read_addr(read_addr),
 		.send_data(send_data),
@@ -554,15 +557,15 @@ dsp_fpga_data(
 		.lose(lose),
 		////////////////////////
 		.part_syn_en(part_syn_en),
-	  .part_syn_start(part_syn_start),
-	  ////////////////////////////
+	    .part_syn_start(part_syn_start),
+		////////////////////////////
 		.corase_end(corase_syn_en),
 		.fine_end(fine_syn_en),
 		.dsp_start_send(dsp_start_send),
 		.corase_syn_pos(corase_syn_pos),
 		.fine_syn_pos(fine_syn_pos),
 		.send40k_en(send40k_en),
-	  .send10k_en(send10k_en),
+		.send10k_en(send10k_en),
 	  
 		.flag_croase(flag_croase),
 		.flag_fine(flag_fine),
@@ -711,7 +714,27 @@ slot_timer slot_timer_inst(
 		.debug(slot_debug)
     );
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//// (10) debug signal logic ////   
+//// (10) debug signal logic ////
+debug_pc pc_debug(
+	//IN
+	.sys_rest(sys_rest),
+	
+	.clk_20mhz(clk_20mhz),
+	.clk_50mhz(clk_50mhz),
+	.clk_25kHz(clk_25kHz),
+	
+	.rv_uart_data(rv_uart_data[63:0]),//串口接收指令，用于控制切换观察的信号
+	.rv_uart_vld(rv_uart_vld),//20mhz脉宽的脉冲
+	
+	.uart_demsk_data(uart_demsk_data[63:0]),
+	.uart_demsk_data_valid(uart_demsk_data_valid),
+	
+	.send_data(send_data[31:0]),
+	
+	//OUT
+	.mif_data_out(mif_data_out[63:0]),
+	.mif_data_vaild(mif_data_vaild)
+);
 debug U_debug
     ( 
      .sys_rst                   (sys_rest                ), 
@@ -750,7 +773,7 @@ debug U_debug
 	  .sys_debug                 (sys_debug               ),
 	   //--UART
      .uart_debug                (uart_debug              )
-    ); 
+    );
 
 
 
