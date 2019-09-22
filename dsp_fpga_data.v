@@ -107,7 +107,7 @@ reg send_fine_en;
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-assign start_send = send_start || send_start_reg;
+assign start_send = send_start || send_start_reg;//初始化从AD采集回来存储数据的存储器的读取地址并启动MCBSP发送给DSP
 assign send_step = send_step_reg;
 
 ////////////////////////////test//////////////////////////////////////////////////
@@ -188,39 +188,46 @@ begin
 end
 ////////////////////////////////////////////////////////////////////////////////////
 //一帧数据存储ROM表
-reg [4:0]rom_addr;
-reg [4:0]data_updated_counter;
+reg [13:0]rom_addr;
+reg [13:0]data_updated_counter;
 wire [31:0]rom_dout;
+wire [13:0] rom_addr_length;
+assign rom_addr_length[13:0] = 14'd40;
 always@(posedge clk_20m or posedge cfg_rst)
 begin
 	if(cfg_rst)begin
-		data_updated_counter[4:0] <= 5'd0;
+		data_updated_counter[13:0] <= 14'd0;
 	end
-	else if(data_updated_counter[4:0] == 5'd20)begin
-		data_updated_counter[4:0] <= 5'd0;
+	else if(data_updated_counter[13:0] == rom_addr_length)begin
+		data_updated_counter[13:0] <= 14'd0;
 	end
 	else if(data_updated)begin
-		data_updated_counter[4:0] <= data_updated_counter[4:0] + 5'd1;
+		data_updated_counter[13:0] <= data_updated_counter[13:0] + 14'd1;
 	end
 end
 always@(posedge clk_20m or posedge cfg_rst)
 begin
 	if(cfg_rst)begin
-		rom_addr[4:0] <= 5'd0;
+		rom_addr[13:0] <= 14'd0;
 	end
-	else if(data_updated_counter[4:0] == 5'd0)begin
-		rom_addr[4:0] <= 5'd0;
+	else if(data_updated_counter[13:0] == 14'd0)begin
+		rom_addr[13:0] <= 14'd0;
 	end
 	else if(data_updated)begin
-		rom_addr[4:0] <= rom_addr[4:0] + 5'd1;
+		rom_addr[13:0] <= rom_addr[13:0] + 14'd1;
 	end
 end
 
-//one_640bit one_640bit_rom(
-//  .clka(clk_20m),//input clka
-//  .addra(rom_addr[4:0]),//input [4 : 0] addra
-//  .douta(rom_dout[31:0])//output [31 : 0] douta
-//);
+mcbsp_rx_data rx_data_loop_inst (
+  .clka(mcbsp0_slaver_clkx), // input clka
+  .wea(dsp_data_en), // input [0 : 0] wea
+  .addra(ccsk_addr_wr), // input [13 : 0] addra
+  .dina(dsp_tx_data[31:0]), // input [31 : 0] dina
+  .clkb(clk_20m), // input clkb
+  .enb(1'b1), // input enb
+  .addrb(rom_addr[13:0]), // input [13 : 0] addrb
+  .doutb(rom_dout[31:0]) // output [31 : 0] doutb
+);
 
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -247,12 +254,12 @@ mcbsp_top(                                        //6个引脚 2个数据引脚，2个时钟
     //// DL data transmit ////
     //.tx_mcbsp_interrupt(tx_mcbsp_interrupt),
     .dsp_tx_data(dsp_tx_data[31:0]), 
-	 .tx_vaild_out(tx_vaild_out),//标志dsp_tx_data[31:0]是有效的
+	.tx_vaild_out(tx_vaild_out),//标志dsp_tx_data[31:0]是有效的
 	
     //// UL data receive ////
-    .rx_mcbsp_interrupt(mcbsp_master_en_tb/*send_start_dl[3]*/), //rd interrupt
-    .rx_slot_data_length(15'd20/*rx_slot_data_length*/),
-    .dsp_rx_dina(mcbsp_data_counter[31:0]/*data_dsp*/),
+    .rx_mcbsp_interrupt(part_syn_start/*send_start_dl[3]*/), //rd interrupt
+    .rx_slot_data_length(rom_addr_length/*rx_slot_data_length*/),
+    .dsp_rx_dina(rom_dout[31:0]/*data_dsp*/),
 
     .rx_ram_addr_upd(data_updated),
     
