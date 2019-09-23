@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 module tx_top_new(
 	input clk_msk_in,//50mhz
-   input clk_5m,
+	input clk_5m,
 	input clk_50m,
 	input clk_200m,
 	input cfg_rst,
@@ -46,7 +46,8 @@ module tx_top_new(
 	
 	output [255:0] debug_1,
 	output [255:0] debug_2,
-	output [255:0] debug_3
+	output [255:0] debug_3,
+	output [32:0]  debug_msk
     );
 
 
@@ -309,6 +310,7 @@ wire msk_vaild_ahead;
 wire msk_vaild_out;
 wire [15:0]msk_i_out;
 wire [15:0]msk_q_out;
+assign debug_msk[32:0] = {msk_i_out[15:0], msk_q_out[15:0], msk_vaild_out};
 msk_top u_msk_top(
       //IN
       .clk_msk_in(clk_50m),

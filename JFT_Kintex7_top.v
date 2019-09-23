@@ -581,6 +581,7 @@ wire [255:0] debug_data_dsp;
 wire [255:0] tx_debug;
 wire [255:0] tx_debug_2;
 wire [255:0] tx_debug_3;
+wire [32:0] debug_msk;
 wire [31:0] loop_data;
 reg  slot_start_count;
 always@(posedge clk_50mhz) begin
@@ -623,69 +624,71 @@ tx_top_new tx_top_inst(
 				
 				.debug_1(tx_debug),
 				.debug_2(tx_debug_2),
-				.debug_3(tx_debug_3)
+				.debug_3(tx_debug_3),
+				.debug_msk(debug_msk)
 );
 wire [255:0] ddc_iq_debug;
 wire [255:0] debug_adc;
 wire [255:0] debug_adc_2;
 wire [255:0] debug_dec_1;
 wire [255:0] debug_dec_2;
+wire [255:0] FM_debug;
 wire [255:0] debug_decode;
 wire store10k_en_posedge;
 wire store10k_en_negedge;
 
 rx_top  rx_top_inst(
-		 .clk_200m(clk_200mhz),
-		 .clk_5m(clk_5mhz),
-		 .clk_50m(clk_50mhz),
-		 .clk_20m(clk_20mhz_2),
-		 .cfg_rst(rst_count[15]),
-		 
-     //  ADC0 IN  
-     .adc0_data_a_p                (adc0_data_a_p), 
-     .adc0_data_a_n                (adc0_data_a_n), 
-     .adc0_data_b_p                (adc0_data_b_p), 
-     .adc0_data_b_n                (adc0_data_b_n), 
-     .adc0_or_p                    (adc0_or_p    ), 
-     .adc0_or_n                    (adc0_or_n    ), 
-	   .adc0_clk                    (adc0_clk     ),
+	.clk_200m						(clk_200mhz),
+	.clk_5m							(clk_5mhz),
+	.clk_50m						(clk_50mhz),
+	.clk_20m						(clk_20mhz_2),
+	.cfg_rst						(rst_count[15]),
 	 
-     //ADC1 IN        
-     .adc1_data_a_p                (adc1_data_a_p), 
-     .adc1_data_a_n                (adc1_data_a_n), 
-     .adc1_data_b_p                (adc1_data_b_p), 
-     .adc1_data_b_n                (adc1_data_b_n), 
-     .adc1_or_p                    (adc1_or_p    ), 
-     .adc1_or_n                    (adc1_or_n    ),  
-	 	 .adc1_clk                   (adc1_clk     ),
-	 	 
-	 	 .dac_txenable								(dac_txenable),
-	 	 .data_updated								(data_updated),
-		 .start_send								(start_send),
-		 .send_step									(send_step), 
-		 .dsp_receive_interrupt				   (rx_data_interrupt),
-	 	 .data_dsp									(data_dsp),	 	
-	 	 .loop_data									(loop_data), 
-       .slot_interrupt							(slot_interrupt),
-		 .slot_start_count						(slot_start_count),
-       .init_rx_slot								(init_rx_slot),
-	 	 .rx_dds_en									(rx_dds_en),
-	 	 ////////////////////////////////////////
-	 	 .part_syn_en								(part_syn_en),
-	    .part_syn_start							(part_syn_start),
-		 ////////////////////////////////////////
-		 .uart_demsk_data_valid             (uart_demsk_data_valid),
-		 .uart_demsk_data                   (uart_demsk_data[63:0]),
-/////////////////////////////////////////////////////
+	//  ADC0 IN  
+	.adc0_data_a_p                	(adc0_data_a_p), 
+	.adc0_data_a_n                	(adc0_data_a_n), 
+	.adc0_data_b_p                	(adc0_data_b_p), 
+	.adc0_data_b_n                	(adc0_data_b_n), 
+	.adc0_or_p                    	(adc0_or_p    ), 
+	.adc0_or_n                    	(adc0_or_n    ), 
+	.adc0_clk                    	(adc0_clk     ),
 
+	//ADC1 IN        
+	.adc1_data_a_p                	(adc1_data_a_p), 
+	.adc1_data_a_n                	(adc1_data_a_n), 
+	.adc1_data_b_p                	(adc1_data_b_p), 
+	.adc1_data_b_n                	(adc1_data_b_n), 
+	.adc1_or_p                    	(adc1_or_p    ), 
+	.adc1_or_n                    	(adc1_or_n    ),  
+	.adc1_clk                  		(adc1_clk     ),
 
-		 .debug_decode								(debug_decode),
-	 	 .debug_data_dsp							(debug_data_dsp),
-	 	 .debug_iq								   (ddc_iq_debug),
-	 	 .sync_con_debug							(debug_adc),
-	 	 .debug_adc_2								(debug_adc_2),
-	 	 .debug_dec_1								(debug_dec_1),
-	 	 .debug_dec_2								(debug_dec_2)
+	.dac_txenable					(dac_txenable),
+	.data_updated					(data_updated),
+	.start_send						(start_send),
+	.send_step						(send_step), 
+	.dsp_receive_interrupt			(rx_data_interrupt),
+	.data_dsp						(data_dsp),	 	
+	.loop_data						(loop_data), 
+	.slot_interrupt					(slot_interrupt),
+	.slot_start_count				(slot_start_count),
+    .init_rx_slot					(init_rx_slot),
+	.rx_dds_en						(rx_dds_en),
+	////////////////////////////////////////
+	.part_syn_en					(part_syn_en),
+	.part_syn_start					(part_syn_start),
+	////////////////////////////////////////
+	.uart_demsk_data_valid          (uart_demsk_data_valid),
+	.uart_demsk_data                (uart_demsk_data[63:0]),
+	/////////////////////////////////////////////////////
+	.debug_decode					(debug_decode),
+	.debug_data_dsp					(debug_data_dsp),
+	.debug_iq						(ddc_iq_debug),
+	.sync_con_debug					(debug_adc),
+	.debug_adc_2					(debug_adc_2),
+	.debug_dec_1					(debug_dec_1),
+	.debug_dec_2					(debug_dec_2),
+	.FM_debug						(FM_debug),
+	.debug_msk						(debug_msk)
 //	 	 
 //     //------------ADC OUT         
 //     .adc0_data_a_out              (adc0_data_a  ),
@@ -737,42 +740,43 @@ debug_pc pc_debug(
 );
 debug U_debug
     ( 
-     .sys_rst                   (sys_rest                ), 
+	.sys_rst                   	(sys_rest					), 
 
-     .clk_400k						  (clk_400k						),
-     .clk_5mhz  					  (clk_5mhz						),
-     .clk_50mhz  					  (clk_50mhz					),
-     .clk_10mhz                 (clk_10mhz               ),
-     .clk_20mhz                 (clk_20mhz_2             ),   
-     .clk_100mhz                (clk_100mhz              ),  
-     .clk_200mhz                (clk_200mhz              ),
-     .dac_data_clk				  (dac_data_clk_buf        ),
+	.clk_400k					(clk_400k					),
+	.clk_5mhz  					(clk_5mhz					),
+	.clk_50mhz  				(clk_50mhz					),
+	.clk_10mhz                 	(clk_10mhz					),
+	.clk_20mhz                 	(clk_20mhz_2				),   
+	.clk_100mhz                	(clk_100mhz					),  
+	.clk_200mhz                	(clk_200mhz					),
+	.dac_data_clk				(dac_data_clk_buf			),
 
-     
-     .dsp2fpga_dsp_rdy          (dsp2fpga_dsp_rdy        ),   
-     .lmk04806_1_locked_in      (lmk04806_1_locked_in    ),  
-     .lmk04806_1_holdover       (lmk04806_1_holdover     ),
-     .lmk04806_2_holdover       (lmk04806_2_holdover     ),
-     .tx_slot_dsp_interrupt     (tx_slot_dsp_interrupt   ),
-     .rx_data_dsp_interrupt	  (rx_data_dsp_interrupt	),
 
-	  .tx_debug						  (tx_debug                ),
-	  .tx_debug_2					  (tx_debug_2              ),
-	  .tx_debug_3					  (tx_debug_3              ),
-	  .adc_debug					  (debug_adc               ),
-	  .adc_debug_2					  (debug_adc_2             ),
-	  .ddc_iq_debug				  (ddc_iq_debug            ),
-	  .debug_decode				  (debug_decode            ),
-	  .debug_data_dsp				  (debug_data_dsp          ),
-	  .dec_debug_1					  (debug_dec_1             ),	
-	  .dec_debug_2					  (debug_dec_2             ),
-	  .mcbsp_debug					  (mcbsp_debug             ),
-	  .store10k_debug				  (store10k_debug          ),
-	  .slot_debug					  (slot_debug              ),
-	  .dac_cfg_debug             (dac_cfg_debug           ),
-	  .sys_debug                 (sys_debug               ),
-	   //--UART
-     .uart_debug                (uart_debug              )
+	.dsp2fpga_dsp_rdy          	(dsp2fpga_dsp_rdy			),   
+	.lmk04806_1_locked_in      	(lmk04806_1_locked_in		),  
+	.lmk04806_1_holdover       	(lmk04806_1_holdover     	),
+	.lmk04806_2_holdover       	(lmk04806_2_holdover     	),
+	.tx_slot_dsp_interrupt     	(tx_slot_dsp_interrupt   	),
+	.rx_data_dsp_interrupt		(rx_data_dsp_interrup		),
+
+	.tx_debug					(tx_debug                	),
+	.tx_debug_2					(tx_debug_2					),
+	.tx_debug_3					(tx_debug_3					),
+	.adc_debug					(debug_adc					),
+	.adc_debug_2				(debug_adc_2				),
+	.ddc_iq_debug				(ddc_iq_debug            	),
+	.debug_decode				(debug_decode				),
+	.debug_data_dsp				(debug_data_dsp          	),
+	.dec_debug_1				(debug_dec_1				),	
+	.dec_debug_2				(debug_dec_2				),
+	.FM_debug					(FM_debug					),
+	.mcbsp_debug				(mcbsp_debug             	),
+	.store10k_debug				(store10k_debug          	),
+	.slot_debug					(slot_debug              	),
+	.dac_cfg_debug             	(dac_cfg_debug           	),
+	.sys_debug                 	(sys_debug               	),
+	//--UART
+	.uart_debug                	(uart_debug              	)
     );
 
 

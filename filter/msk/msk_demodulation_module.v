@@ -38,7 +38,9 @@ output[15:0]        tr_msk_out,                             //用于精同步
 output[63:0]        uart_demsk_data,                        //MSK解调出的数据，组装成64bit，用于发送给PC
 output              uart_demsk_data_valid,                  //每接收64BIT给出一个50ns脉宽的脉冲
 //// debug ////
-output[255:0]       debug_signal
+output[255:0]       debug_signal,
+output[255:0]       FM_debug,
+input[32:0]			debug_msk
     );
 
 
@@ -58,10 +60,25 @@ reg                   de_bit                   = 1'b0;
 reg  [15:0]           de_data                  = 16'd0;
 reg  [31:0]           data_msk_out_reg;
 
+wire [17:0] 	FM_out;
+wire 			FM_out_en;
+wire 			FM_de_bit;
 //////////////////////////////////////////////////////////////////////////////////
 //// parameter defination ////
 
-
+//FM解调模块
+// FM_Receive #(18) FM_Receive(
+// .logic_rst_in(logic_rst_in),
+// .nrst(!logic_rst_in),
+// .clk(logic_clk_in),
+// .I_in({base_data_i[15:0],2'd0}),
+// .Q_in({base_data_q[15:0],2'd0}),
+// .in_en(data_msk_in_en),//电平触发，数据有效后一直为高电平
+// .FM_out(FM_out[17:0]),
+// .FM_out_en(FM_out_en),
+// .FM_de_bit(FM_de_bit),
+// .debug(FM_debug)
+// );
 
 //////////////////////////////////////////////////////////////////////////////////
 //// (0) signal assigment ////
@@ -129,7 +146,7 @@ begin
         de_data[15:0]        <= 16'd0;
     end                      
     else begin               
-		de_bit               <=  ~add_result[32];  // 对符号位取反，即为解调的输出
+		de_bit               <= ~add_result[32];  // 对符号位取反，即为解调的输出
 		de_data[15:0]        <= {add_result[32],add_result[29:15]};
     end
 end
@@ -189,6 +206,7 @@ begin
 end
 //-------------------------------------------------------
 assign de_bit_in = de_bit;
+// assign de_bit_in = FM_de_bit;
 always @(posedge logic_clk_in or posedge logic_rst_in)
 begin
     if(logic_rst_in)begin

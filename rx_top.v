@@ -26,46 +26,48 @@ module rx_top(
 		input cfg_rst,
 		
 		//-------------ADC0 IN--------------------
-		input [6:0]              adc0_data_a_p,
-		input [6:0]              adc0_data_a_n,
-		input [6:0]              adc0_data_b_p,
-		input [6:0]              adc0_data_b_n,
-		input                    adc0_or_p,
-		input                    adc0_or_n,
-		input                    adc0_clk,
+		input [6:0]             adc0_data_a_p,
+		input [6:0]             adc0_data_a_n,
+		input [6:0]             adc0_data_b_p,
+		input [6:0]             adc0_data_b_n,
+		input                   adc0_or_p,
+		input                   adc0_or_n,
+		input                   adc0_clk,
 		//-------------ADC1 IN--------------------
-		input [6:0]              adc1_data_a_p,
-		input [6:0]              adc1_data_a_n,
-		input [6:0]              adc1_data_b_p,
-		input [6:0]              adc1_data_b_n,
-		input                    adc1_or_p,
-		input                    adc1_or_n,
-		input                    adc1_clk,
+		input [6:0]             adc1_data_a_p,
+		input [6:0]             adc1_data_a_n,
+		input [6:0]             adc1_data_b_p,
+		input [6:0]             adc1_data_b_n,
+		input                   adc1_or_p,
+		input                   adc1_or_n,
+		input                   adc1_clk,
 
-		input 						 dac_txenable,
-      input 						 data_updated,	
-      input 						 start_send,
-		input [16:0]				 send_step,
-		output    					 dsp_receive_interrupt,
-		output [31:0]				 data_dsp,
-		input  [31:0]				 loop_data,
-		input  						 slot_interrupt,
-		input 						 slot_start_count,
-		input 						 init_rx_slot,
-		input 						 rx_dds_en,
-		input 						 part_syn_start,
-		output						 part_syn_en,
+		input 					dac_txenable,
+		input 					data_updated,	
+		input 					start_send,
+		input [16:0]			send_step,
+		output    				dsp_receive_interrupt,
+		output [31:0]			data_dsp,
+		input  [31:0]			loop_data,
+		input  					slot_interrupt,
+		input 					slot_start_count,
+		input 					init_rx_slot,
+		input 					rx_dds_en,
+		input 					part_syn_start,
+		output					part_syn_en,
 		
-		output [63:0]            uart_demsk_data,
-		output                   uart_demsk_data_valid,
+		output [63:0]           uart_demsk_data,
+		output                  uart_demsk_data_valid,
 		
-		output [255:0]				 debug_decode,
-		output [255:0]           debug_data_dsp,		
-		output [255:0]           sync_con_debug,
-		output [255:0]           debug_iq,
-		output [255:0]           debug_adc_2,
-		output [255:0]	          debug_dec_1,
-		output [255:0]	          debug_dec_2
+		output [255:0]			debug_decode,
+		output [255:0]          debug_data_dsp,		
+		output [255:0]          sync_con_debug,
+		output [255:0]          debug_iq,
+		output [255:0]          debug_adc_2,
+		output [255:0]	        debug_dec_1,
+		output [255:0]	        debug_dec_2,
+		output [255:0]			FM_debug,
+		input  [32:0]			debug_msk
     );
 
 wire rx_hb1_en;
@@ -166,10 +168,10 @@ ddc_top ddc_top_inst(//进行50MHZ的数字下变频
 
 dec_top_new dec_top_inst(
 		.clk_200m				(clk_200m),
-		.cfg_rst					(cfg_rst),
-		.clk_20mhz           (clk_20m),
+		.cfg_rst				(cfg_rst),
+		.clk_20mhz           	(clk_20m),
 
-      .data_1_i				(data_out_1_i[15:0]),//200m sample
+		.data_1_i				(data_out_1_i[15:0]),//200m sample
 		.data_1_q				(data_out_1_q[15:0]),
 //		.data_2_i				(data_out_2_i),
 //		.data_2_q				(data_out_2_q),
@@ -180,15 +182,17 @@ dec_top_new dec_top_inst(
 		
 //		.loop_data				(loop_data),
 		
-		.data_64k_i_out		  (),
-		.data_64k_q_out		  (),
-		.data_64k_out_en       (),
-		.data_msk_out          ({data_64_3k_q_out,data_64_3k_i_out}),//21.33k sample rate
-		.data_msk_out_en       (data_msk_out_en),
-		.uart_demsk_data       (uart_demsk_data[63:0]),
-		.uart_demsk_data_valid (uart_demsk_data_valid),
-		.debug_dec_1 			  (debug_dec_1),
-		.debug_dec_2			  (debug_dec_2)
+		.data_64k_i_out		  	(),
+		.data_64k_q_out		  	(),
+		.data_64k_out_en       	(),
+		.data_msk_out          	({data_64_3k_q_out,data_64_3k_i_out}),//21.33k sample rate
+		.data_msk_out_en       	(data_msk_out_en),
+		.uart_demsk_data       	(uart_demsk_data[63:0]),
+		.uart_demsk_data_valid 	(uart_demsk_data_valid),
+		.debug_dec_1 			(debug_dec_1),
+		.debug_dec_2			(debug_dec_2),
+		.FM_debug				(FM_debug),
+		.debug_msk				(debug_msk)
 
 );
 

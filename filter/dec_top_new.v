@@ -39,8 +39,9 @@ module dec_top_new(
 		output uart_demsk_data_valid,
 		
 		output [255:0] debug_dec_1,
-		output [255:0] debug_dec_2
-		
+		output [255:0] debug_dec_2,
+		output [255:0] FM_debug,
+		input  [32:0]  debug_msk
 		
     );
     
@@ -100,14 +101,16 @@ msk_demodulation_module demodulation_module
 //// data signal ////
 .data_msk_in({data_64k_q_out,data_64k_i_out}),// 64k sample rate
 .data_msk_in_en(data_64k_out_en),
-.data_msk_out(data_msk_out[31:0]),//32bit/1.5ms
+.data_msk_out(data_msk_out[31:0]),//32bit/1.5ms更新一次
 .data_msk_out_en(data_msk_out_en),
 .tr_msk_out(tr_msk_out[15:0]),
 
 .uart_demsk_data_valid(uart_demsk_data_valid),
 .uart_demsk_data(uart_demsk_data[63:0]),
 //// debug ////
-.debug_signal(debug_1_2)
+.debug_signal(debug_1_2),
+.FM_debug(FM_debug),
+.debug_msk(debug_msk)
 );
 
 ////debug
